@@ -4,10 +4,13 @@ import matplotlib.animation as anim
 import time
 import math
 import random
+import numpy as np
 
 def distance(pos1,pos2):
 	return math.sqrt((pos1[0]-pos2[0])**2+(pos1[1]-pos2[1])**2)
 
+def mag(vec):
+	return math.sqrt(vec[0]**2+vec[1]**2)
 
 class Disk:
 	def __init__(self, radius, pos,inpipe,dist):
@@ -40,6 +43,8 @@ for i in G.edges():
 
 	G[ind1][ind2]['length']=distance(pos[ind1],pos[ind2])
 
+print G[5][6]['length']
+
 source = 1 #Defining the source
 sink = 5 
 
@@ -54,7 +59,7 @@ plt.ion()
 T=10 #(1/frequency)
 for t in range (0,200):
 	print t
-	speed=0.1
+	speed=0.05
 	for i in G.edges():
 		ind1=i[0]
 		ind2=i[1]
@@ -75,20 +80,24 @@ for t in range (0,200):
 		ind2=mem.inpipe[1]
 		mod=distance(pos[ind1],pos[ind2])
 		direct=[(pos[ind2][0]-pos[ind1][0])/mod,(pos[ind2][1]-pos[ind1][1])/mod]
-
-		mem.pos[0]=pos[ind1][0]+mem.dist*direct[0]/mod
-		mem.pos[1]=pos[ind1][1]+mem.dist*direct[1]/mod
+		#print "mag", mag(direct)
+		
 		mem.dist+=speed
+		mem.pos[0]=pos[ind1][0]+mem.dist*direct[0]
+		mem.pos[1]=pos[ind1][1]+mem.dist*direct[1]
 		
 		
-		plt.gca().add_patch(plt.Circle(mem.pos,mem.radius, color='g'))
+		
+		
+		#print mem.dist, mem.pos
 
-		if math.fabs(mem.dist-G[ind1][ind2]['length'])<=0.3:
+		if math.fabs(mem.dist-G[ind1][ind2]['length'])<=0.03:
 			if(ind2==sink):
 				arrayList.remove(mem)
 			else:
 				mem.inpipe[0]=ind2
 				mem.dist=0
+				mem.pos=list(pos[ind2])
 				#number=len(G[ind2])-1
 				
 			
@@ -98,7 +107,7 @@ for t in range (0,200):
 						mem.inpipe[1]=rand
 						break
 
-		
+		plt.gca().add_patch(plt.Circle(mem.pos,mem.radius, color='g'))
 		
 		#print mem.pos
 	plt.draw()	
